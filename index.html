@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ミニSNS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>ミニSNS</h1>
+
+  <form id="postForm">
+    <input type="text" id="username" placeholder="名前" required />
+    <textarea id="message" placeholder="メッセージ" required></textarea>
+    <button type="submit">投稿する</button>
+  </form>
+
+  <h2>投稿一覧</h2>
+  <div id="posts"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
