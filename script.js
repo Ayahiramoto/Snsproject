@@ -36,3 +36,49 @@ function displayPost(post) {
   div.innerHTML = `<strong>${post.name}</strong> (${post.date})<br>${post.message}<hr>`;
   postsDiv.prepend(div);
 }
+async function postMessage() {
+  const name = document.getElementById("name").value;
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("message").value;
+  const status = document.getElementById("status");
+
+  if (!name || !password || !message) {
+    status.textContent = "全ての項目を入力してね。";
+    return;
+  }
+
+  // 🔐 認証チェック
+  const authRes = await fetch(`${SUPABASE_URL}/rest/v1/users?name=eq.${name}&password=eq.${password}`, {
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+
+  const user = await authRes.json();
+
+  if (user.length === 0) {
+    status.textContent = "認証に失敗しました。名前かパスワードが間違ってるよ。";
+    return;
+  }
+
+  // ✅ 投稿処理
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/posts`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify({ name, message })
+  });
+
+  if (res.ok) {
+    status.textContent = "投稿しました！";
+    document.getElementById("message").value = "";
+    loadPosts();
+  } else {
+    status.textContent = "投稿に失敗しました…";
+  }
+}

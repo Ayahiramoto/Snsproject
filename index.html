@@ -3,6 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <title>投稿フォーム</title>
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      background-color: #f9f9f9;
+      margin: 2em;
+      color: #333;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.6em;
+      margin: 0.5em 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      background-color: #2e86de;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1e5fab;
+    }
+
+    #status {
+      margin-top: 1em;
+      color: green;
+    }
+
+    ul#posts {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul#posts li {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
   <h1>投稿フォーム</h1>
@@ -10,6 +63,12 @@
   <input type="text" id="name" placeholder="名前を入力" /><br />
   <textarea id="message" placeholder="メッセージを入力" rows="5" cols="30"></textarea><br />
   <button onclick="postMessage()">投稿</button>
+<hr />
+<h2>ユーザー登録</h2>
+<input type="text" id="reg_name" placeholder="ユーザー名" /><br />
+<input type="password" id="reg_password" placeholder="パスワード" /><br />
+<button onclick="registerUser()">登録</button>
+<p id="reg_status"></p>
 
   <p id="status"></p>
 
@@ -18,6 +77,99 @@
   <ul id="posts"></ul>
 
   <script>
+    async function postMessage() {
+  const name = document.getElementById("name").value;
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("message").value;
+  const status = document.getElementById("status");
+
+  if (!name || !password || !message) {
+    status.textContent = "全ての項目を入力してね。";
+    return;
+  }
+
+  // 🔐 認証チェック
+  const authRes = await fetch(`${SUPABASE_URL}/rest/v1/users?name=eq.${name}&password=eq.${password}`, {
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+
+  const user = await authRes.json();
+
+  if (user.length === 0) {
+    status.textContent = "認証に失敗しました。名前かパスワードが間違ってるよ。";
+    return;
+  }
+
+  // ✅ 投稿処理
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/posts`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify({ name, message })
+  });
+
+  if (res.ok) {
+    status.textContent = "投稿しました！";
+    document.getElementById("message").value = "";
+    loadPosts();
+  } else {
+    status.textContent = "投稿に失敗しました…";
+  }
+}
+
+    async function registerUser() {
+  const name = document.getElementById("reg_name").value;
+  const password = document.getElementById("reg_password").value;
+  const reg_status = document.getElementById("reg_status");
+
+  if (!name || !password) {
+    reg_status.textContent = "ユーザー名とパスワードを入力してください。";
+    return;
+  }
+
+  // 既に存在するかチェック
+  const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/users?name=eq.${name}`, {
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
+
+  const existingUsers = await checkRes.json();
+
+  if (existingUsers.length > 0) {
+    reg_status.textContent = "このユーザー名はすでに使われています。";
+    return;
+  }
+
+  // 登録処理
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify({ name, password })
+  });
+
+  if (res.ok) {
+    reg_status.textContent = "登録が完了しました！";
+    document.getElementById("reg_name").value = "";
+    document.getElementById("reg_password").value = "";
+  } else {
+    reg_status.textContent = "登録に失敗しました。";
+  }
+}
+
     // Supabaseの情報を入力
     const SUPABASE_URL = "https://meseqsksebolzlyatpqq.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc2Vxc2tzZWJvbHpseWF0cHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5Mjg5MzQsImV4cCI6MjA3MzUwNDkzNH0.9CXWI7vDPhLIaesVma9fwJcaA8Ep4TqlCcorhyQzDsE";
@@ -37,7 +189,7 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
+          "apikey":SUPABASE_ANON_KEY,
           "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
           "Prefer": "return=representation"
         },
