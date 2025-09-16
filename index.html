@@ -145,35 +145,34 @@ async function registerUser() {
     
 
     // 投稿一覧を読み込んで表示
-    async function loadPosts() {
-  // 投稿一覧を取得するfetch関数の中
-const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,user_id,users(name,role)&order=created_at.desc`, {
-  headers: {
-    apikey: KEY,
-    Authorization: `Bearer ${KEY}`
-  }
-});
-
-  };
+ async function loadPosts() {
+  const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,user_id,users(name,role)&order=created_at.desc`, {
+    headers: {
+      apikey: KEY,
+      Authorization: `Bearer ${KEY}`
+    }
+  });
 
   const posts = await res.json();
   const list = document.getElementById("posts");
   list.innerHTML = "";
 
   posts.forEach(post => {
-  const time = new Date(post.created_at).toLocaleString("ja-JP");
-  const name = post.users?.name || post.name;
-  const role = post.users?.role || "unknown";
+    const time = new Date(post.created_at).toLocaleString("ja-JP");
+    const name = post.users?.name || post.name;
+    const role = post.users?.role || "unknown";
 
-  const item = document.createElement("li");
-  item.textContent = `【${time}】${name}（${role}）: ${post.message}`;
-  list.appendChild(item);
+    const item = document.createElement("li");
+    item.textContent = `【${time}】${name}（${role}）: ${post.message}`;
+    list.appendChild(item);
+  });
+}
+
+// ページ読み込み時に投稿一覧を表示
+document.addEventListener("DOMContentLoaded", () => {
+  loadPosts();
 });
 
-
-
-    // ページ読み込み時に一覧表示
-    loadPosts();
     
 async function hashPassword(password) {
   const encoder = new TextEncoder();
