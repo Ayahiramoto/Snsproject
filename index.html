@@ -66,15 +66,20 @@
 
   // ✅ 投稿処理（そのまま）
   const res = await fetch(`${url}/rest/v1/posts`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": KEY,
-      "Authorization": `Bearer ${KEY}`,
-      "Prefer": "return=representation"
-    },
-    body: JSON.stringify({ name, message })
-  });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "apikey": KEY,
+    "Authorization": `Bearer ${KEY}`,
+    "Prefer": "return=representation"
+  },
+  body: JSON.stringify({
+    name,
+    message,
+    user_id: user[0].id  // ← これを追加！
+  })
+});
+
 
   if (res.ok) {
     status.textContent = "投稿しました！";
