@@ -1,2 +1,144 @@
 # Snsproject
 自由に使ってね〜
+<script>
+
+// パスワードのハッシュ化
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  return hashHex;
+}
+
+// ユーザー登録処理
+async function registerUser() {
+  const name = document.getElementById("reg_name").value;
+  const password = document.getElementById("reg_password").value;
+  const reg_status = document.getElementById("reg_status");
+
+  if (!name || !password) {
+    reg_status.textContent = "ユーザー名とパスワードを入力してください。";
+    return;
+  }
+
+  const hashedPassword = await hashPassword(password);
+
+  const checkRes = await fetch(`${url}/rest/v1/users?name=eq.${name}`, {
+    headers: {
+      "apikey": KEY,
+      "Authorization": `Bearer ${KEY}`
+    }
+  });
+  const existingUsers = await checkRes.json();
+
+  if (existingUsers.length > 0) {
+    reg_status.textContent = "このユーザー名はすでに使われています。";
+    return;
+  }
+
+  const res = await fetch(`${url}/rest/v1/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": KEY,
+      "Authorization": `Bearer ${KEY}`,
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify({ name, password: hashedPassword })
+  });
+
+  if (res.ok) {
+    reg_status.textContent = "登録が完了しました！";
+    document.getElementById("reg_name").value = "";
+    document.getElementById("reg_password").value = "";
+  } else {
+    reg_status.textContent = "登録に失敗しました。";
+  }
+}
+
+// 投稿処理
+async function postMessage() {
+  const name = document.getElementById("name").value;
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("message").value;
+  const status = document.getElementById("status");
+
+  if (!name || !password || !message) {
+    status.textContent = "全ての項目を入力してね。";
+    return;
+  }
+
+  const hashedPassword = await hashPassword(password);
+
+  const authRes = await fetch(`${url}/rest/v1/users?name=eq.${name}&password=eq.${hashedPassword}`, {
+    headers: {
+      "apikey": KEY,
+      "Authorization": `Bearer ${KEY}`
+    }
+  });
+  const user = await authRes.json();
+
+  if (user.length === 0) {
+    status.textContent = "認証に失敗しました。";
+    return;
+  }
+
+  if (user[0].is_banned) {
+    status.textContent = "このユーザーは凍結されています。";
+    return;
+  }
+
+  const res = await fetch(`${url}/rest/v1/posts`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": KEY,
+      "Authorization": `Bearer ${KEY}`,
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify({
+      message,
+      user_id: user[0].id // ← name ではなく user_id を使う
+    })
+  });
+
+  if (res.ok) {
+    status.textContent = "投稿しました！";
+    document.getElementById("message").value = "";
+    loadPosts();
+  } else {
+    status.textContent = "投稿に失敗しました…";
+  }
+}
+
+// 投稿一覧読み込み
+async function loadPosts() {
+  const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,users(name,role)&order=created_at.desc`, {
+    headers: {
+      "apikey": KEY,
+      "Authorization": `Bearer ${KEY}`
+    }
+  });
+
+  const posts = await res.json();
+  const list = document.getElementById("posts");
+  list.innerHTML = "";
+
+  posts.forEach(post => {
+    const time = new Date(post.created_at).toLocaleString("ja-JP");
+    const name = post.users?.name || "不明";
+    const role = post.users?.role || "未設定";
+
+    const item = document.createElement("li");
+    item.textContent = `【${time}】${name}（${role}）: ${post.message}`;
+    list.appendChild(item);
+  });
+}
+
+// ページ読み込み時に投稿一覧を表示
+document.addEventListener("DOMContentLoaded", () => {
+  loadPosts();
+});
+</script>
