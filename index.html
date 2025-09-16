@@ -141,35 +141,8 @@ async function registerUser() {
     const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc2Vxc2tzZWJvbHpseWF0cHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5Mjg5MzQsImV4cCI6MjA3MzUwNDkzNH0.9CXWI7vDPhLIaesVma9fwJcaA8Ep4TqlCcorhyQzDsE";
 
     // 投稿する関数
-    async function postMessage() {
-      const name = document.getElementById("name").value;
-      const message = document.getElementById("message").value;
-      const status = document.getElementById("status");
-
-      if (!name || !message) {
-        status.textContent = "名前とメッセージを両方入力してね。";
-        return;
-      }
-
-      const res = await fetch(`${url}/rest/v1/posts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey":KEY,
-          "Authorization": `Bearer ${KEY}`,
-          "Prefer": "return=representation"
-        },
-        body: JSON.stringify({ name, message })
-      });
-
-      if (res.ok) {
-        status.textContent = "投稿しました！";
-        document.getElementById("message").value = "";
-        loadPosts(); // 投稿後に一覧を更新
-      } else {
-        status.textContent = "投稿に失敗しました…";
-      }
-    }
+    
+    
 
     // 投稿一覧を読み込んで表示
     async function loadPosts() {
