@@ -161,12 +161,14 @@ const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,user_id,
   list.innerHTML = "";
 
   posts.forEach(post => {
-    const time = new Date(post.created_at).toLocaleString("ja-JP");
-    // もしusersテーブルがリレーションでつながってたら
-    const role = post.users?.role || "unknown";
-    list.appendChild(document.createElement("li")).textContent =
-      `【${time}】${post.name}（${role}）: ${post.message}`;
-  });
+  const time = new Date(post.created_at).toLocaleString("ja-JP");
+  const name = post.users?.name || post.name;
+  const role = post.users?.role || "unknown";
+
+  const item = document.createElement("li");
+  item.textContent = `【${time}】${name}（${role}）: ${post.message}`;
+  list.appendChild(item);
+});
 
 
 
