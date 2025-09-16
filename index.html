@@ -29,7 +29,11 @@
   <h2>投稿一覧</h2>
   <ul id="posts"></ul>
 
-  <script>// パスワードのハッシュ化
+  <script>
+  const url = "https://meseqsksebolzlyatpqq.supabase.co";
+const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc2Vxc2tzZWJvbHpseWF0cHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5Mjg5MzQsImV4cCI6MjA3MzUwNDkzNH0.9CXWI7vDPhLIaesVma9fwJcaA8Ep4TqlCcorhyQzDsE";
+
+  // パスワードのハッシュ化
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
