@@ -90,7 +90,7 @@
   }
 
   // 🔐 認証チェック
-  const authRes = await fetch(`${SUPABASE_URL}/rest/v1/users?name=eq.${name}&password=eq.${password}`, {
+  const authRes = await fetch(`${SUPABASE_URL}/rest/v1/users?name=eq.${name}&password=eq.${hashedpassword(password)}`, {
     headers: {
       "apikey": SUPABASE_ANON_KEY,
       "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
@@ -125,7 +125,8 @@
   }
 }
 
-    async function registerUser() {
+  
+async function registerUser() {
   const name = document.getElementById("reg_name").value;
   const password = document.getElementById("reg_password").value;
   const reg_status = document.getElementById("reg_status");
@@ -135,7 +136,9 @@
     return;
   }
 
-  // 既に存在するかチェック
+  const hashedPassword = await hashPassword(password);
+
+  // 重複チェック（そのまま）
   const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/users?name=eq.${name}`, {
     headers: {
       "apikey": SUPABASE_ANON_KEY,
@@ -150,7 +153,7 @@
     return;
   }
 
-  // 登録処理
+  // ハッシュ化済みパスワードで登録
   const res = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
     method: "POST",
     headers: {
@@ -159,7 +162,7 @@
       "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
       "Prefer": "return=representation"
     },
-    body: JSON.stringify({ name, password })
+    body: JSON.stringify({ name, password: hashedPassword })
   });
 
   if (res.ok) {
@@ -170,6 +173,7 @@
     reg_status.textContent = "登録に失敗しました。";
   }
 }
+
 
     // Supabaseの情報を入力
     const SUPABASE_URL = "https://meseqsksebolzlyatpqq.supabase.co";
@@ -229,6 +233,15 @@
 
     // ページ読み込み時に一覧表示
     loadPosts();
+    
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  return hashHex;
+}
   </script>
   <p>このサイトは、パスワードをハッシュ化せず送信しています。<br>なので、パスワードを忘れた際はこちら側から変えられますが、不正使用時以外やりません。</p>
 </body>
