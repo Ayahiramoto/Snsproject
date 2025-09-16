@@ -150,13 +150,12 @@ async function registerUser() {
     
 
     // 投稿一覧を読み込んで表示
- async function loadPosts() {
-  const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,user_id,users(name,role)&order=created_at.desc`, {
-    headers: {
-      apikey: KEY,
-      Authorization: `Bearer ${KEY}`
-    }
-  });
+ const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,user_id,users(name,role)&order=created_at.desc`, {
+  headers: {
+    apikey: KEY,
+    Authorization: `Bearer ${KEY}`
+  }
+});
 
   const posts = await res.json();
   const list = document.getElementById("posts");
@@ -171,7 +170,7 @@ async function registerUser() {
     item.textContent = `【${time}】${name}（${role}）: ${post.message}`;
     list.appendChild(item);
   });
-}
+
 
 // ページ読み込み時に投稿一覧を表示
 document.addEventListener("DOMContentLoaded", () => {
