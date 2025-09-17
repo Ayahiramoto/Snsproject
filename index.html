@@ -89,7 +89,6 @@ async function registerUser() {
   }
 }
 
-// 投稿処理
 async function postMessage() {
   const name = document.getElementById("name").value;
   const password = document.getElementById("password").value;
@@ -131,48 +130,20 @@ async function postMessage() {
     },
     body: JSON.stringify({
       message,
-      user_id: user[0].id // ← name ではなく user_id を使う
+      user_id: user[0].id
     })
   });
 
   if (res.ok) {
-  status.textContent = "投稿しました！";
-  document.getElementById("message").value = "";
-  loadPosts();
-} else {
-  const errorText = await res.text();
-  alert("投稿エラー: " + errorText);
-  status.textContent = "投稿に失敗しました…";
+    status.textContent = "投稿しました！";
+    document.getElementById("message").value = "";
+    loadPosts();
+  } else {
+    const errorText = await res.text();
+    alert("投稿エラー: " + errorText);
+    status.textContent = "投稿に失敗しました…";
+  }
 }
-
-// 投稿一覧読み込み
-async function loadPosts() {
-  const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,users(name,role)&order=created_at.desc`, {
-    headers: {
-      "apikey": KEY,
-      "Authorization": `Bearer ${KEY}`
-    }
-  });
-
-  const posts = await res.json();
-  const list = document.getElementById("posts");
-  list.innerHTML = "";
-
-  posts.forEach(post => {
-    const time = new Date(post.created_at).toLocaleString("ja-JP");
-    const name = post.users?.name || "不明";
-    const role = post.users?.role || "未設定";
-
-    const item = document.createElement("li");
-    item.textContent = `【${time}】${name}（${role}）: ${post.message}`;
-    list.appendChild(item);
-  });
-}
-
-// ページ読み込み時に投稿一覧を表示
-document.addEventListener("DOMContentLoaded", () => {
-  loadPosts();
-});}
   </script>
  </body>
 </html>
