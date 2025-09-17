@@ -171,8 +171,21 @@ async function loadPosts() {
 // ページ読み込み時に投稿一覧を表示
 document.addEventListener("DOMContentLoaded", () => {
   loadPosts();
-  alert("投稿読み込み中")
+  debuglog("読み込んだ投稿数:"+posts.length)
 });
+
+// 画面上にログ表示
+function debugLog(text) {
+  const debug = document.getElementById("debug");
+  if (debug) {
+    debug.textContent += text + "\n";
+  } else {
+    const pre = document.createElement("pre");
+    pre.id = "debug";
+    pre.textContent = text + "\n";
+    document.body.appendChild(pre);
+  }
+}
 
   </script>
  </body>
