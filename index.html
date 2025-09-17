@@ -147,7 +147,7 @@ async function postMessage() {
 
 // 投稿一覧読み込み関数
 async function loadPosts() {
-  const res = await fetch(`${url}/rest/v1/posts?select=*&order=created_at.desc`, {
+  const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,fk_user(name,role)&order=created_at.desc`, {
     headers: {
       "apikey": KEY,
       "Authorization": `Bearer ${KEY}`
@@ -155,22 +155,25 @@ async function loadPosts() {
   });
 
   if (!res.ok) {
-    alert("投稿の読み込みに失敗しました。");
+    alert("読み込み失敗: " + await res.text());
     return;
   }
 
   const posts = await res.json();
-
   const list = document.getElementById("posts");
   list.innerHTML = "";
 
   posts.forEach(post => {
     const time = new Date(post.created_at).toLocaleString("ja-JP");
+    const name = post.user?.name || "不明";
+    const role = post.user?.role || "未設定";
+
     const item = document.createElement("li");
-    item.textContent = `【${time}】投稿: ${post.message}（user_id: ${post.user_id}）`;
+    item.textContent = `【${time}】${name}（${role}）: ${post.message}`;
     list.appendChild(item);
   });
 }
+
 
 // ページ読み込み時に投稿一覧を表示
 document.addEventListener("DOMContentLoaded", () => {
