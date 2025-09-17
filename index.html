@@ -81,35 +81,29 @@ async function registerUser() {
   });
 
   if (res.ok) {
-    reg_status.textContent = "登録が完了しました！";
-    document.getElementById("reg_name").value = "";
-    document.getElementById("reg_password").value = "";
-  } else {
-    reg_status.textContent = "登録に失敗しました。";
-  }
-  //ようこそ
-  if (res.ok) {
-  const newUser = await res.json();
+  reg_status.textContent = "登録が完了しました！";
+  document.getElementById("reg_name").value = "";
+  document.getElementById("reg_password").value = "";
 
-  // 運営アカウントのIDをここに入れる
-  const adminUserId = "07003402-51ea-4a7c-8279-0ef4258250af";
-
-await fetch(`${url}/rest/v1/posts`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "apikey": KEY,
-    "Authorization": `Bearer ${KEY}`
-  },
-  body: JSON.stringify({
-    message: `ようこそ、${name}さん！`,
-    user_id: adminUserId
-  })
-});
-  };
+  // 運営アカウントでようこそ投稿
+  await fetch(`${url}/rest/v1/posts`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": KEY,
+      "Authorization": `Bearer ${KEY}`
+    },
+    body: JSON.stringify({
+      message: `ようこそ、${name}さん！`,
+      user_id: "07003402-51ea-4a7c-8279-0ef4258250af"
+    })
+  });
+} else {
+  reg_status.textContent = "登録に失敗しました。";
+}
 
   // 登録完了のメッセージなど
-}
+
 
 
 
@@ -205,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadPosts();
 });
 
-
+}
 
   </script>
  </body>
