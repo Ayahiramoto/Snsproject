@@ -165,8 +165,9 @@ async function loadPosts() {
 
   posts.forEach(post => {
     const time = new Date(post.created_at).toLocaleString("ja-JP");
-    const name = post.user?.name || "不明";
-    const role = post.user?.role || "未設定";
+    // fk_userにアクセスする
+    const name = post.fk_user?.name || "不明";
+    const role = post.fk_user?.role || "未設定";
 
     const item = document.createElement("li");
     item.textContent = `【${time}】${name}（${role}）: ${post.message}`;
