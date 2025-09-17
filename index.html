@@ -136,12 +136,13 @@ async function postMessage() {
   });
 
   if (res.ok) {
-    status.textContent = "投稿しました！";
-    document.getElementById("message").value = "";
-    loadPosts();
-  } else {
-    status.textContent = "投稿に失敗しました…";
-  }
+  status.textContent = "投稿しました！";
+  document.getElementById("message").value = "";
+  loadPosts();
+} else {
+  const errorText = await res.text();
+  alert("投稿エラー: " + errorText);
+  status.textContent = "投稿に失敗しました…";
 }
 
 // 投稿一覧読み込み
@@ -171,7 +172,7 @@ async function loadPosts() {
 // ページ読み込み時に投稿一覧を表示
 document.addEventListener("DOMContentLoaded", () => {
   loadPosts();
-});
+});}
   </script>
  </body>
 </html>
