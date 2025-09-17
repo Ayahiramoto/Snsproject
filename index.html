@@ -144,6 +144,7 @@ async function postMessage() {
     status.textContent = "投稿に失敗しました…";
   }
 }
+
 // 投稿一覧読み込み関数
 async function loadPosts() {
   const res = await fetch(`${url}/rest/v1/posts?select=message,created_at,users(name,role)&order=created_at.desc`, {
@@ -174,18 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
   debuglog("読み込んだ投稿数:"+posts.length)
 });
 
-// 画面上にログ表示
-function debugLog(text) {
-  const debug = document.getElementById("debug");
-  if (debug) {
-    debug.textContent += text + "\n";
-  } else {
-    const pre = document.createElement("pre");
-    pre.id = "debug";
-    pre.textContent = text + "\n";
-    document.body.appendChild(pre);
-  }
-}
+
 
   </script>
  </body>
