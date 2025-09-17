@@ -87,7 +87,31 @@ async function registerUser() {
   } else {
     reg_status.textContent = "登録に失敗しました。";
   }
+  //ようこそ
+  if (res.ok) {
+  const newUser = await res.json();
+
+  // 運営アカウントのIDをここに入れる
+  const adminUserId = "07003402-51ea-4a7c-8279-0ef4258250af";
+
+await fetch(`${url}/rest/v1/posts`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "apikey": KEY,
+    "Authorization": `Bearer ${KEY}`
+  },
+  body: JSON.stringify({
+    message: `ようこそ、${newUser.name}さん！`,
+    user_id: adminUserId
+  })
+});
+  };
+
+  // 登録完了のメッセージなど
 }
+
+
 
 async function postMessage() {
   const name = document.getElementById("name").value;
